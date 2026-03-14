@@ -1,7 +1,13 @@
-﻿using FiguraSp.Users.Model.DTOs.Requests;
+﻿using FiguraSp.Users.Api.Configuration;
+using FiguraSp.Users.Model.DTOs.Requests;
 using FiguraSp.Users.Model.DTOs.Responses;
+using FiguraSp.Users.Service.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
 
 namespace FiguraSp.Users.Service.Services
 {
@@ -35,7 +41,7 @@ namespace FiguraSp.Users.Service.Services
             return users;
         }
 
-        public async Task<UserResponseDto> LoginUser(UserLoginRequestDto userToLogin)
+        public async Task<UserResponseDto> LoginUser(UserLoginRequestDto userToLogin, JwtConfiguration jwtConfiguration)
         {
             var userExist = await userManager.FindByEmailAsync(userToLogin.Email);
             if (userExist == null || !await userManager.CheckPasswordAsync(userExist, userToLogin.Password))
@@ -46,10 +52,14 @@ namespace FiguraSp.Users.Service.Services
                     Errors = new List<string>() { "wrong login credentials" }
                 };
             }
+
+            var jwtTokenResponse = await GenerateJwtToken(userExist, jwtConfiguration);
+
             return new UserResponseDto
             {
                 Username = userExist.UserName,
                 Email = userExist.Email,
+                AccessToken = jwtTokenResponse.Token,
                 Success = true,
                 Errors = new List<string>()
             };
@@ -58,7 +68,7 @@ namespace FiguraSp.Users.Service.Services
         public async Task<UserResponseDto> RegisterUser(UserRegistrationRequestDto userToRegister)
         {
             var userExist = await userManager.FindByEmailAsync(userToRegister.Email);
-            if(userExist != null)
+            if (userExist != null)
             {
                 return new UserResponseDto
                 {
@@ -93,12 +103,50 @@ namespace FiguraSp.Users.Service.Services
                 };
             }
         }
+
+        private async Task<AuthenticationResult> GenerateJwtToken(IdentityUser user, JwtConfiguration jwtConfiguration)
+        {
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.SecretKey));
+            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature);
+            var claims = await GetAllValidClaims(user);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddSeconds(jwtConfiguration.ExpirationInSeconds),
+                SigningCredentials = credentials,
+                Issuer = jwtConfiguration.Issuer,
+                Audience = jwtConfiguration.Audience,
+            };
+
+            var tokenHandler = new JsonWebTokenHandler();
+            string accessToken = tokenHandler.CreateToken(tokenDescriptor);
+            return new AuthenticationResult
+            {
+                Success = true,
+                Token = accessToken,
+            };
+        }
+
+        private async Task<List<Claim>> GetAllValidClaims(IdentityUser user)
+        {
+            var roles = await userManager.GetRolesAsync(user);
+
+            List<Claim> claims =
+            [
+                  new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email, user.Email!),
+                  new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.Id),
+                  ..roles.Select(r => new Claim(ClaimTypes.Role, r)),
+            ];
+
+            return claims;
+        }
     }
 
     public interface IUserService
     {
         public Task<List<IdentityUser>> GetUsers();
-        public Task<UserResponseDto> LoginUser(UserLoginRequestDto userToLogin);
+        public Task<UserResponseDto> LoginUser(UserLoginRequestDto userToLogin, JwtConfiguration jwtConfiguration);
         public Task<UserResponseDto> RegisterUser(UserRegistrationRequestDto userToRegister);
         public Task<UserResponseDto> GetUserDetails(string email);
     }

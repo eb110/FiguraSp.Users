@@ -1,15 +1,19 @@
-﻿using FiguraSp.Users.Model.DTOs.Requests;
+﻿using FiguraSp.Users.Api.Configuration;
+using FiguraSp.Users.Model.DTOs.Requests;
 using FiguraSp.Users.Model.DTOs.Responses;
 using FiguraSp.Users.Service.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace FiguraSp.Users.Api.Controllers
 {
     [Route("api/[controller]")] // http://localhost:5000/api/user
     [ApiController]
-    public class UserController(IUserService userService) : ControllerBase
+    public class UserController(IUserService userService, IOptionsMonitor<JwtConfiguration> optionsMonitor) : ControllerBase
     {
+        private readonly JwtConfiguration jwtConfiguration = optionsMonitor.CurrentValue;
+
         [HttpGet]
         [Route("Users")]
         public async Task<ActionResult<List<IdentityUser>>> GetUsers()
@@ -25,7 +29,7 @@ namespace FiguraSp.Users.Api.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userLoginResponse = await userService.LoginUser(user);
+                var userLoginResponse = await userService.LoginUser(user, jwtConfiguration);
                 if(userLoginResponse.Success)
                 {
                     return CreatedAtAction("GetUser", new { user.Email }, userLoginResponse);

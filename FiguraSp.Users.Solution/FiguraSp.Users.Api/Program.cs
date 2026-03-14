@@ -5,7 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddSharedServices(builder.Configuration)
     .AddIdentityUser()
-    .AddUserService();
+    .AddUserService()
+    .AddJwtConfiguration(builder.Configuration);
 
 builder.Services.AddControllers();
 

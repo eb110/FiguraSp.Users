@@ -1,4 +1,5 @@
 ﻿using FiguraSp.SharedLibrary.DependencyInjection;
+using FiguraSp.Users.Api.Configuration;
 using FiguraSp.Users.Model.Data;
 using FiguraSp.Users.Service.Services;
 using Microsoft.AspNetCore.Identity;
@@ -28,6 +29,13 @@ namespace FiguraSp.Users.Api.Extensions
         public static IServiceCollection AddUserService(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration config)
+        {
+            services.Configure<JwtConfiguration>(config.GetSection("Jwt"));
 
             return services;
         }
