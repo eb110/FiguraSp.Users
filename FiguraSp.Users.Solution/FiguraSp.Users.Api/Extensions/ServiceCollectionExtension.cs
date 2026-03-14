@@ -1,5 +1,6 @@
 ﻿using FiguraSp.SharedLibrary.DependencyInjection;
 using FiguraSp.Users.Model.Data;
+using FiguraSp.Users.Service.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace FiguraSp.Users.Api.Extensions
@@ -20,6 +21,13 @@ namespace FiguraSp.Users.Api.Extensions
             services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                     //controller connection
                     .AddEntityFrameworkStores<UsersDbContext>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddUserService(this IServiceCollection services)
+        {
+            services.AddScoped<IUserService, UserService>();
 
             return services;
         }

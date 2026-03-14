@@ -4,7 +4,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddSharedServices(builder.Configuration)
-    .AddIdentityUser();
+    .AddIdentityUser()
+    .AddUserService();
 
 builder.Services.AddControllers();
 
