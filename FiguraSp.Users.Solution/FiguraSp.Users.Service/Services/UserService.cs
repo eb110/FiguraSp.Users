@@ -7,19 +7,19 @@ namespace FiguraSp.Users.Service.Services
 {
     public class UserService(UserManager<IdentityUser> userManager) : IUserService
     {
-        public async Task<UserRegisterResponseDto> GetUserDetails(string email)
+        public async Task<UserResponseDto> GetUserDetails(string email)
         {
             var userExist = await userManager.FindByEmailAsync(email);
             if (userExist == null)
             {
-                return new UserRegisterResponseDto
+                return new UserResponseDto
                 {
                     Success = false,
                     Errors = new List<string>() { "user does not exist" }
                 };
             }
 
-            return new UserRegisterResponseDto
+            return new UserResponseDto
             {
                 Username = userExist.UserName,
                 Email = userExist.Email,
@@ -35,12 +35,32 @@ namespace FiguraSp.Users.Service.Services
             return users;
         }
 
-        public async Task<UserRegisterResponseDto> RegisterUser(UserRegistrationRequestDto userToRegister)
+        public async Task<UserResponseDto> LoginUser(UserLoginRequestDto userToLogin)
+        {
+            var userExist = await userManager.FindByEmailAsync(userToLogin.Email);
+            if (userExist == null || !await userManager.CheckPasswordAsync(userExist, userToLogin.Password))
+            {
+                return new UserResponseDto
+                {
+                    Success = false,
+                    Errors = new List<string>() { "wrong login credentials" }
+                };
+            }
+            return new UserResponseDto
+            {
+                Username = userExist.UserName,
+                Email = userExist.Email,
+                Success = true,
+                Errors = new List<string>()
+            };
+        }
+
+        public async Task<UserResponseDto> RegisterUser(UserRegistrationRequestDto userToRegister)
         {
             var userExist = await userManager.FindByEmailAsync(userToRegister.Email);
             if(userExist != null)
             {
-                return new UserRegisterResponseDto
+                return new UserResponseDto
                 {
                     Success = false,
                     Errors = new List<string>() { "user already exist" }
@@ -56,7 +76,7 @@ namespace FiguraSp.Users.Service.Services
             var isCreated = await userManager.CreateAsync(newUser, userToRegister.Password);
             if (isCreated.Succeeded)
             {
-                return new UserRegisterResponseDto
+                return new UserResponseDto
                 {
                     Username = userToRegister.Username,
                     Email = userToRegister.Email,
@@ -66,7 +86,7 @@ namespace FiguraSp.Users.Service.Services
             }
             else
             {
-                return new UserRegisterResponseDto
+                return new UserResponseDto
                 {
                     Success = false,
                     Errors = isCreated.Errors.Select(x => x.Description).ToList()
@@ -78,10 +98,9 @@ namespace FiguraSp.Users.Service.Services
     public interface IUserService
     {
         public Task<List<IdentityUser>> GetUsers();
-
-        public Task<UserRegisterResponseDto> RegisterUser(UserRegistrationRequestDto userToRegister);
-
-        public Task<UserRegisterResponseDto> GetUserDetails(string email);
+        public Task<UserResponseDto> LoginUser(UserLoginRequestDto userToLogin);
+        public Task<UserResponseDto> RegisterUser(UserRegistrationRequestDto userToRegister);
+        public Task<UserResponseDto> GetUserDetails(string email);
     }
 
     

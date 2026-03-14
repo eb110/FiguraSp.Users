@@ -19,8 +19,28 @@ namespace FiguraSp.Users.Api.Controllers
             return Ok(users);
         }
 
+        [HttpPost]
+        [Route("Login")]
+        public async Task<ActionResult<UserResponseDto>> Login([FromBody] UserLoginRequestDto user)
+        {
+            if (ModelState.IsValid)
+            {
+                var userLoginResponse = await userService.LoginUser(user);
+                if(userLoginResponse.Success)
+                {
+                    return CreatedAtAction("GetUser", new { user.Email }, userLoginResponse);
+                }
+                return BadRequest(userLoginResponse);
+            }
+            return BadRequest(new UserResponseDto
+            {
+                Success = false,
+                Errors = new List<string>() { "Reqest with inavlid credentials" }
+            });
+        }
+
         [HttpGet]
-        public async Task<ActionResult<UserRegisterResponseDto>> GetUser(string email)
+        public async Task<ActionResult<UserResponseDto>> GetUser(string email)
         {
             var result = await userService.GetUserDetails(email);
             if(result.Success)
@@ -32,7 +52,7 @@ namespace FiguraSp.Users.Api.Controllers
 
         [HttpPost]
         [Route("Register")]
-        public async Task<ActionResult<UserRegisterResponseDto>> Register([FromBody] UserRegistrationRequestDto userToRegister)
+        public async Task<ActionResult<UserResponseDto>> Register([FromBody] UserRegistrationRequestDto userToRegister)
         {
             if(ModelState.IsValid)
             {
@@ -44,7 +64,7 @@ namespace FiguraSp.Users.Api.Controllers
                 return BadRequest(result);
             }
 
-            return BadRequest(new UserRegisterResponseDto
+            return BadRequest(new UserResponseDto
             {
                 Success = false,
                 Errors = new List<string>() { "Reqest with inavlid credentials" }
