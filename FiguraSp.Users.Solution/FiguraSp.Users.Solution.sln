@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.Users.Test", "Figu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.Users.Api", "FiguraSp.Users.Api\FiguraSp.Users.Api.csproj", "{DFD2CB48-51C6-48F5-B140-AB0F9A431903}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.SharedLibrary", "..\..\FiguraSp.SharedLibrary\FiguraSp.SharedLibrary.Solution\FiguraSp.SharedLibrary\FiguraSp.SharedLibrary.csproj", "{26A9D2EB-02E9-E295-45D2-5D5E76D27362}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{DFD2CB48-51C6-48F5-B140-AB0F9A431903}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFD2CB48-51C6-48F5-B140-AB0F9A431903}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFD2CB48-51C6-48F5-B140-AB0F9A431903}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
