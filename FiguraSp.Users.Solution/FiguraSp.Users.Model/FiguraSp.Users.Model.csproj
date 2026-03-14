@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\FiguraSp.SharedLibrary\FiguraSp.SharedLibrary.Solution\FiguraSp.SharedLibrary\FiguraSp.SharedLibrary.csproj" />
+  </ItemGroup>
+
 </Project>
