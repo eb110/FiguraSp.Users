@@ -2,6 +2,7 @@
 using FiguraSp.Users.Model.DTOs.Requests;
 using FiguraSp.Users.Model.DTOs.Responses;
 using FiguraSp.Users.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ namespace FiguraSp.Users.Api.Controllers
 
         [HttpGet]
         [Route("Users")]
+        [Authorize]
         public async Task<ActionResult<List<IdentityUser>>> GetUsers()
         {
             var users = await userService.GetUsers();
@@ -44,6 +46,7 @@ namespace FiguraSp.Users.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<UserResponseDto>> GetUser(string email)
         {
             var result = await userService.GetUserDetails(email);

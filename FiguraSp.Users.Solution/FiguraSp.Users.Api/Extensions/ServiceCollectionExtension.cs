@@ -2,7 +2,10 @@
 using FiguraSp.Users.Api.Configuration;
 using FiguraSp.Users.Model.Data;
 using FiguraSp.Users.Service.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace FiguraSp.Users.Api.Extensions
 {
@@ -33,9 +36,23 @@ namespace FiguraSp.Users.Api.Extensions
             return services;
         }
 
-        public static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddJwtConfigurationAndValidation(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<JwtConfiguration>(config.GetSection("Jwt"));
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters.ValidIssuer = config["Jwt:Issuer"];
+                    options.TokenValidationParameters.ValidAudience = config["Jwt:Audience"];
+                    options.TokenValidationParameters.IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(config["Jwt:SecretKey"]!));
+                });
 
             return services;
         }

@@ -6,15 +6,16 @@ builder.Services
     .AddSharedServices(builder.Configuration)
     .AddIdentityUser()
     .AddUserService()
-    .AddJwtConfiguration(builder.Configuration);
-
+    .AddJwtConfigurationAndValidation(builder.Configuration);
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 
+//##############################################################MIDDLEWARE###############
+
 var app = builder.Build();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
