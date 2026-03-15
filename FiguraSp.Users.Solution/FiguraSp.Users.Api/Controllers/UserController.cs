@@ -17,7 +17,7 @@ namespace FiguraSp.Users.Api.Controllers
 
         [HttpGet]
         [Route("Users")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<IdentityUser>>> GetUsers()
         {
             var users = await userService.GetUsers();
@@ -46,7 +46,7 @@ namespace FiguraSp.Users.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserResponseDto>> GetUser(string email)
         {
             var result = await userService.GetUserDetails(email);

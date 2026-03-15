@@ -8,7 +8,7 @@ namespace FiguraSp.Users.Api.Controllers
 {
     [Route("api/[controller]")] // http://localhost:5000/api/role
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class RoleController(IRoleService roleService) : ControllerBase
     {
         [HttpGet]
