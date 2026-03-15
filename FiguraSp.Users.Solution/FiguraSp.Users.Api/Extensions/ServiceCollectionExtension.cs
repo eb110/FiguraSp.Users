@@ -29,9 +29,10 @@ namespace FiguraSp.Users.Api.Extensions
             return services;
         }
 
-        public static IServiceCollection AddUserService(this IServiceCollection services)
+        public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             return services;
         }
