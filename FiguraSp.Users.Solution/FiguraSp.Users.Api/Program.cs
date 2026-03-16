@@ -6,8 +6,8 @@ builder.Services
     .AddSharedServices(builder.Configuration)
     .AddIdentityUser()
     .AddCustomServices()
-    .AddJwtConfigurationAndValidation(builder.Configuration);
-builder.Services.AddAuthorization();
+    .AddJwtConfigurationAndValidation(builder.Configuration)
+    .AddCustomAuthorization(builder.Configuration);
 builder.Services.AddControllers();
 
 

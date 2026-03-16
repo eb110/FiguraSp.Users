@@ -131,12 +131,14 @@ namespace FiguraSp.Users.Service.Services
         private async Task<List<Claim>> GetAllValidClaims(IdentityUser user)
         {
             var roles = await userManager.GetRolesAsync(user);
+            var userClaims = await userManager.GetClaimsAsync(user);
 
             List<Claim> claims =
             [
                   new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email, user.Email!),
                   new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.Id),
                   ..roles.Select(r => new Claim(ClaimTypes.Role, r)),
+                  ..userClaims
             ];
 
             return claims;

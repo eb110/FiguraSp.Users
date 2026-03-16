@@ -57,5 +57,17 @@ namespace FiguraSp.Users.Api.Extensions
 
             return services;
         }
+
+        public static IServiceCollection AddCustomAuthorization(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddAuthorization(options =>
+            {
+                var claim = config["Claim:DefaultClaim"]!;
+                var key = config["Claim:RequiredKey"]!;
+                options.AddPolicy(claim, policy => policy.RequireClaim(key));
+            });
+
+            return services;
+        }
     }
 }
