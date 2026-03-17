@@ -1,6 +1,6 @@
-﻿using FiguraSp.Users.Api.Configuration;
-using FiguraSp.Users.Model.DTOs.Requests;
+﻿using FiguraSp.Users.Model.DTOs.Requests;
 using FiguraSp.Users.Model.DTOs.Responses;
+using FiguraSp.Users.Service.Configuration;
 using FiguraSp.Users.Service.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -63,12 +63,39 @@ namespace FiguraSp.Users.Api.Controllers
         {
             if(ModelState.IsValid)
             {
-                var result = await userService.RegisterUser(userToRegister);
+                var result = await userService.RegisterUser(userToRegister, jwtConfiguration);
                 if(result.Success)
                 {
                     return CreatedAtAction("GetUser", new { result.Email }, result);
                 }
                 return BadRequest(result);
+            }
+
+            return BadRequest(new UserResponseDto
+            {
+                Success = false,
+                Errors = new List<string>() { "Reqest with inavlid credentials" }
+            });
+        }
+
+        [HttpPost]
+        [Route("RefreshToken")]
+        public async Task<ActionResult<UserResponseDto>> RefreshToken([FromBody] TokenRequestDto tokenRequest)
+        {
+            if (ModelState.IsValid)
+            {
+                var userResponseDto = await userService.RefreshToken(tokenRequest, jwtConfiguration); 
+
+                if (!userResponseDto.Success)
+                {
+                    return BadRequest(new UserResponseDto
+                    {
+                        Errors = new List<string>() { "Invalid token" },
+                        Success = false
+                    });
+                }
+
+                return StatusCode(201, userResponseDto);
             }
 
             return BadRequest(new UserResponseDto

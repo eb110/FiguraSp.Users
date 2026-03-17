@@ -1,4 +1,4 @@
-﻿namespace FiguraSp.Users.Api.Configuration
+﻿namespace FiguraSp.Users.Service.Configuration
 {
     public record JwtConfiguration
     {
