@@ -24,6 +24,7 @@ bld/
 [Ll]ogs/
 
 .vs
+appsettings.*
 
 # .NET Core
 project.lock.json
