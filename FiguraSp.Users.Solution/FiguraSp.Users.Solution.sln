@@ -1,9 +1,45 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.Users.Model", "FiguraSp.Users.Model\FiguraSp.Users.Model.csproj", "{A8F9257A-19A7-47C2-896F-0876FE4A4C37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.Users.Service", "FiguraSp.Users.Service\FiguraSp.Users.Service.csproj", "{8AAF7C9A-4A2B-44C7-997D-50DEA5B37BD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.Users.Test", "FiguraSp.Users.Test\FiguraSp.Users.Test.csproj", "{72B274E5-5D7A-47D7-B741-81850735FDE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.Users.Api", "FiguraSp.Users.Api\FiguraSp.Users.Api.csproj", "{DFD2CB48-51C6-48F5-B140-AB0F9A431903}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiguraSp.SharedLibrary", "..\..\FiguraSp.SharedLibrary\FiguraSp.SharedLibrary.Solution\FiguraSp.SharedLibrary\FiguraSp.SharedLibrary.csproj", "{26A9D2EB-02E9-E295-45D2-5D5E76D27362}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8F9257A-19A7-47C2-896F-0876FE4A4C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8F9257A-19A7-47C2-896F-0876FE4A4C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8F9257A-19A7-47C2-896F-0876FE4A4C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8F9257A-19A7-47C2-896F-0876FE4A4C37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AAF7C9A-4A2B-44C7-997D-50DEA5B37BD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AAF7C9A-4A2B-44C7-997D-50DEA5B37BD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AAF7C9A-4A2B-44C7-997D-50DEA5B37BD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AAF7C9A-4A2B-44C7-997D-50DEA5B37BD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72B274E5-5D7A-47D7-B741-81850735FDE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72B274E5-5D7A-47D7-B741-81850735FDE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72B274E5-5D7A-47D7-B741-81850735FDE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72B274E5-5D7A-47D7-B741-81850735FDE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFD2CB48-51C6-48F5-B140-AB0F9A431903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFD2CB48-51C6-48F5-B140-AB0F9A431903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFD2CB48-51C6-48F5-B140-AB0F9A431903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFD2CB48-51C6-48F5-B140-AB0F9A431903}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26A9D2EB-02E9-E295-45D2-5D5E76D27362}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
