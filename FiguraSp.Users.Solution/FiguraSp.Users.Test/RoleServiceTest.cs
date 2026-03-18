@@ -1,10 +1,10 @@
-﻿using FiguraSp.Users.Model.DTOs.Responses;
+﻿using FiguraSp.Users.Model.Data;
+using FiguraSp.Users.Model.DTOs.Responses;
 using FiguraSp.Users.Service.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Data;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace FiguraSp.Users.Test
 {
@@ -13,11 +13,14 @@ namespace FiguraSp.Users.Test
     {
         #region Variables
 
-        private RoleService roleService;
-        private Mock<UserManager<IdentityUser>> mockUserManager;
-        private Mock<RoleManager<IdentityRole>> mockRoleManager;
+        private readonly RoleService roleService;
+        private readonly Mock<UserManager<IdentityUser>> mockUserManager;
+        private readonly Mock<RoleManager<IdentityRole>> mockRoleManager;
+        private readonly Mock<DbSet<IdentityRole>> mockIdentityRole;
+        private readonly Mock<DbSet<IdentityUser>> mockIdentityUser;
+        private readonly Mock<UsersDbContext> mockUserContext;
 
-        private string userEmail;
+        private readonly string userEmail;
 
         #endregion
 
@@ -25,10 +28,14 @@ namespace FiguraSp.Users.Test
 
         public RoleServiceTest()
         {
+            DbContextOptions<UsersDbContext> options = new();  
             userEmail = "a2@op.pl";
             mockUserManager = new Mock<UserManager<IdentityUser>>(Mock.Of<IUserStore<IdentityUser>>(), null!, null!, null!, null!, null!, null!, null!, null!);
             mockRoleManager = new Mock<RoleManager<IdentityRole>>(Mock.Of<IRoleStore<IdentityRole>>(), null!, null!, null!, null!);
-            roleService = new RoleService(mockUserManager.Object, mockRoleManager.Object);
+            mockUserContext = new Mock<UsersDbContext>(options);
+            roleService = new RoleService(mockUserManager.Object, mockRoleManager.Object, mockUserContext.Object);
+            mockIdentityRole = MockUserContext.GetMockRoleIdentity();
+            mockIdentityUser = MockUserContext.GetMockUserIdentity();
         }
 
         #endregion
@@ -38,16 +45,32 @@ namespace FiguraSp.Users.Test
         [TestInitialize]
         public void Initialize()
         {
-            IdentityUser user = new IdentityUser();
-            IdentityRole role = new IdentityRole();
+            IdentityUser user = new();
+            IdentityRole role = new();
             IdentityResult identityResult = IdentityResult.Success;
-            IList<string> roles = new List<string>();
+            IList<string> roles = [];
+
+            mockUserContext.Setup(x => x.Roles).Returns(mockIdentityRole.Object);
+
+            mockUserContext.Setup(x => x.Users).Returns(mockIdentityUser.Object);
+
+            mockUserContext.Setup(x => x.GetFirstOrDefaultAsync(It.IsAny<IQueryable<IdentityRole>>()))
+                .Returns(Task.FromResult(role));
+
+            mockUserContext.Setup(x => x.GetEntitiesToListAsync(It.IsAny<IQueryable<IdentityRole>>()))
+                .Returns(Task.FromResult(new List<IdentityRole> { role }));
+
+            mockUserContext.Setup(x => x.GetEntitiesToListAsync(It.IsAny<IQueryable<IdentityUser>>()))
+                .Returns(Task.FromResult(new List<IdentityUser> { user }));
 
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(user)!);        
 
             mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<IdentityUser>()))
                 .Returns(Task.FromResult(roles));
+
+            mockUserManager.Setup(x => x.RemoveFromRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(identityResult));
 
             mockUserManager.Setup(x => x.AddToRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(identityResult));
@@ -57,11 +80,86 @@ namespace FiguraSp.Users.Test
 
             mockRoleManager.Setup(x => x.CreateAsync(It.IsAny<IdentityRole>()))
                 .Returns(Task.FromResult(identityResult));
+
+            mockRoleManager.Setup(x => x.DeleteAsync(It.IsAny<IdentityRole>()))
+                .Returns(Task.FromResult(identityResult));
+
         }
 
         #endregion
 
         #region Test Methods
+
+        [TestMethod]
+        public async Task AddUserRoleToRolesTriggersAddRoleAsync()
+        {
+            IdentityUser user = new();
+            await roleService.AddUserRoleToUsers();
+            mockUserManager.Verify(x => x.AddToRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()), Times.Once());
+        }
+
+        [TestMethod]
+        public async Task RemoveUserFromRoleSuccess()
+        {
+            RoleResponseDto result = await roleService.RemoveUserFromRole("", "");
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Success);
+        }
+
+        [TestMethod]
+        public async Task RemoveUserFromRoleFails()
+        {
+            IdentityResult identityResult = IdentityResult.Failed();
+            mockUserManager.Setup(x => x.RemoveFromRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(identityResult));
+            RoleResponseDto result = await roleService.RemoveUserFromRole("", "");
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Success);
+        }
+
+        [TestMethod]
+        public async Task GetRolesSuccess()
+        {
+            List<IdentityRole> result = await roleService.GetRoles();
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Count == 1);
+        }
+
+        [TestMethod]
+        public async Task GetRoleSuccess()
+        {
+            RoleResponseDto result = await roleService.GetRole("");
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Success);
+        }
+
+        [TestMethod]
+        public async Task GetRoleFails()
+        {
+            mockUserContext.Setup(x => x.GetFirstOrDefaultAsync(It.IsAny<IQueryable<IdentityRole>>()));
+            RoleResponseDto result = await roleService.GetRole("");
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Success);
+        }
+
+        [TestMethod]
+        public async Task DeleteRoleSuccess()
+        {
+            RoleResponseDto result = await roleService.DeleteRole("");
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.Success);
+        }
+
+        [TestMethod]
+        public async Task DeleteRoleFails()
+        {
+            IdentityResult identityResult = IdentityResult.Failed();
+            mockRoleManager.Setup(x => x.DeleteAsync(It.IsAny<IdentityRole>()))
+                .Returns(Task.FromResult(identityResult));
+            RoleResponseDto result = await roleService.DeleteRole("");
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.Success);
+        }
 
         [TestMethod]
         public async Task AddUserToRoleSuccess()
@@ -72,16 +170,18 @@ namespace FiguraSp.Users.Test
         }
 
         [TestMethod]
-        public async Task AddUserToRoleFailed()
+        public async Task AddUserToRoleFails()
         {
             IdentityResult identityResult = IdentityResult.Failed();
+            mockUserManager.Setup(x => x.AddToRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+              .Returns(Task.FromResult(identityResult));
             RoleResponseDto result = await roleService.AddUserToRole("", "");
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.Success);
+            Assert.IsFalse(result.Success);
         }
 
         [TestMethod]
-        public async Task AddRoleReturnOne()
+        public async Task AddRoleReturnsOne()
         {
             mockRoleManager.Setup(x => x.RoleExistsAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(false));
@@ -93,7 +193,6 @@ namespace FiguraSp.Users.Test
         [TestMethod]
         public async Task AddRoleFails()
         {
-            IdentityResult identityResult = IdentityResult.Failed();
             RoleResponseDto result = await roleService.AddRole("test");
             Assert.IsNotNull(result);
             Assert.IsFalse(result.Success);

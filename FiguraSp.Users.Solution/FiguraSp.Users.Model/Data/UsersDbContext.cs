@@ -14,5 +14,19 @@ namespace FiguraSp.Users.Model.Data
 
             base.OnModelCreating(builder);
         }
+
+        public virtual async Task<T> GetFirstOrDefaultAsync<T>(IQueryable<T> query)
+        {
+            var entity = await query.FirstOrDefaultAsync();
+
+            return entity!;
+        }
+
+        public virtual async Task<List<T>> GetEntitiesToListAsync<T>(IQueryable<T> query)
+        {
+            var entities = await query.ToListAsync();
+
+            return entities;
+        }
     }
 }
