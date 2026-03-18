@@ -17,7 +17,7 @@ namespace FiguraSp.Users.Service.Services
                     return new RoleResponseDto { Success = true, RoleName = roleName };
                 }
             }
-            return new RoleResponseDto { Success = false, Errors = new List<string>() { "Role already exist" } };
+            return new RoleResponseDto { Success = false, Errors = ["Role already exist"] };
         }
 
         public async Task<IList<string>?> GetUserRoles(string email)
@@ -39,7 +39,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The user {email} does not exist" }
+                    Errors = [$"The user {email} does not exist"]
                 };
             }
 
@@ -48,7 +48,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The role {roleName} does not exist" }
+                    Errors = [$"The role {roleName} does not exist"]
                 };
             }
 
@@ -60,7 +60,7 @@ namespace FiguraSp.Users.Service.Services
 
             return new RoleResponseDto
             {
-                Errors = new List<string>() { $"Adding new role failed" }
+                Errors = [$"Adding new role failed"]
             };
         }
 
@@ -72,7 +72,7 @@ namespace FiguraSp.Users.Service.Services
                 return new RoleResponseDto
                 {
                     Success = false,
-                    Errors = new List<string>() { $"Role {roleName} does not exist" }
+                    Errors = [$"Role {roleName} does not exist"]
                 };
             }
 
@@ -87,7 +87,7 @@ namespace FiguraSp.Users.Service.Services
             return new RoleResponseDto
             {
                 Success = false,
-                Errors = new List<string>() { $"Role {roleName} was not delted" }
+                Errors = [$"Role {roleName} was not delted"]
             };
         }
 
@@ -99,7 +99,7 @@ namespace FiguraSp.Users.Service.Services
                 return new RoleResponseDto
                 {
                     Success = false,
-                    Errors = new List<string>() { $"Role {roleName} does not exist" }
+                    Errors = [$"Role {roleName} does not exist"]
                 };
             }
             return new RoleResponseDto
@@ -123,7 +123,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The user {email} does not exist" }
+                    Errors = [$"The user {email} does not exist"]
                 };
             }
 
@@ -132,7 +132,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The role {roleName} does not exist" }
+                    Errors = [$"The role {roleName} does not exist"]
                 };
             }
 
@@ -145,7 +145,7 @@ namespace FiguraSp.Users.Service.Services
 
             return new RoleResponseDto
             {
-                Errors = new List<string>() { $"Remove of role failed" }
+                Errors = [$"Remove of role failed"]
             };
         }
 
