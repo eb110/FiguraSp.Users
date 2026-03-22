@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FiguraSp.Users.Model.Entity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
@@ -38,6 +39,27 @@ namespace FiguraSp.Users.Test
             mockIdentityUser.As<IQueryable<IdentityUser>>().Setup(m => m.GetEnumerator()).Returns(roleIdentityModel.GetEnumerator());
 
             return mockIdentityUser;
+        }
+
+        public static Mock<DbSet<RefreshToken>> GetMockRefreshToken()
+        {
+            var refreshTokenModel = new List<RefreshToken>
+            {
+                new()
+                {
+                    UserId = "123",
+                    Token = "test",
+                }
+            }.AsQueryable();
+
+            var mockRefreshToken = new Mock<DbSet<RefreshToken>>();
+
+            mockRefreshToken.As<IQueryable<RefreshToken>>().Setup(m => m.Provider).Returns(refreshTokenModel.Provider);
+            mockRefreshToken.As<IQueryable<RefreshToken>>().Setup(m => m.Expression).Returns(refreshTokenModel.Expression);
+            mockRefreshToken.As<IQueryable<RefreshToken>>().Setup(m => m.ElementType).Returns(refreshTokenModel.ElementType);
+            mockRefreshToken.As<IQueryable<RefreshToken>>().Setup(m => m.GetEnumerator()).Returns(refreshTokenModel.GetEnumerator());
+
+            return mockRefreshToken;
         }
     }
 }
