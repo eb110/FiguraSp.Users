@@ -161,8 +161,10 @@ namespace FiguraSp.Users.Service.Services
 
         public async Task<UserResponseDto> RefreshToken(TokenRequestDto tokenRequest, JwtConfiguration jwtConfiguration)
         {
-            RefreshToken? refreshToken = await context.RefreshTokens.Include(r => r.User).FirstOrDefaultAsync(r => r.Token == tokenRequest.RefreshToken);
-            if(refreshToken == null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
+            IQueryable<RefreshToken> query = context.RefreshTokens.Include(r => r.User)
+                .Where(r => r.Token == tokenRequest.RefreshToken).AsNoTracking();
+            RefreshToken? refreshToken = await context.GetFirstOrDefaultAsync(query);
+            if (refreshToken == null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
             {
                 return new UserResponseDto
                 {
