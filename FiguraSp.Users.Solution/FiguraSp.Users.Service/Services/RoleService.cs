@@ -1,10 +1,10 @@
-﻿using FiguraSp.Users.Model.DTOs.Responses;
+﻿using FiguraSp.Users.Model.Data;
+using FiguraSp.Users.Model.DTOs.Responses;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace FiguraSp.Users.Service.Services
 {
-    public class RoleService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager) : IRoleService
+    public class RoleService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, UsersDbContext context) : IRoleService
     {
         public async Task<RoleResponseDto> AddRole(string roleName)
         {
@@ -17,7 +17,7 @@ namespace FiguraSp.Users.Service.Services
                     return new RoleResponseDto { Success = true, RoleName = roleName };
                 }
             }
-            return new RoleResponseDto { Success = false, Errors = new List<string>() { "Role already exist" } };
+            return new RoleResponseDto { Success = false, Errors = ["Role already exist"] };
         }
 
         public async Task<IList<string>?> GetUserRoles(string email)
@@ -39,7 +39,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The user {email} does not exist" }
+                    Errors = [$"The user {email} does not exist"]
                 };
             }
 
@@ -48,7 +48,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The role {roleName} does not exist" }
+                    Errors = [$"The role {roleName} does not exist"]
                 };
             }
 
@@ -60,24 +60,27 @@ namespace FiguraSp.Users.Service.Services
 
             return new RoleResponseDto
             {
-                Errors = new List<string>() { $"Adding new role failed" }
+                Errors = [$"Adding new role failed"]
             };
         }
 
         public async Task<RoleResponseDto> DeleteRole(string roleName)
         {
-            var roleExist = await roleManager.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
+            IQueryable<IdentityRole> query = context.Roles.Where(x => x.Name == roleName);
+            //context for moq testing as we can wrap and then mock linq delegates
+            var roleExist = await context.GetFirstOrDefaultAsync(query);
+           // var roleExist = await roleManager.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
             if (roleExist == null)
             {
                 return new RoleResponseDto
                 {
                     Success = false,
-                    Errors = new List<string>() { $"Role {roleName} does not exist" }
+                    Errors = [$"Role {roleName} does not exist"]
                 };
             }
 
-            var success = await roleManager.DeleteAsync(roleExist);
-            if (success != null)
+            var result = await roleManager.DeleteAsync(roleExist);
+            if (result.Succeeded)
             {
                 return new RoleResponseDto
                 {
@@ -87,32 +90,35 @@ namespace FiguraSp.Users.Service.Services
             return new RoleResponseDto
             {
                 Success = false,
-                Errors = new List<string>() { $"Role {roleName} was not delted" }
+                Errors = [$"Role {roleName} was not delted"]
             };
         }
 
         public async Task<RoleResponseDto> GetRole(string roleName)
         {
-            var roleExist = await roleManager.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
+            IQueryable<IdentityRole> query = context.Roles.Where(x => x.Name == roleName);
+            //context for moq testing as we can wrap and then mock linq delegates
+            var roleExist = await context.GetFirstOrDefaultAsync(query);
+            //var roleExist = await roleManager.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
             if (roleExist == null)
             {
                 return new RoleResponseDto
                 {
                     Success = false,
-                    Errors = new List<string>() { $"Role {roleName} does not exist" }
+                    Errors = [$"Role {roleName} does not exist"]
                 };
             }
             return new RoleResponseDto
             {
                 Success = true,
-                Errors = [],
                 RoleName = roleName
             };
         }
 
         public async Task<List<IdentityRole>> GetRoles()
         {
-            var roles = await roleManager.Roles.ToListAsync();
+            IQueryable<IdentityRole> query = context.Roles;
+            var roles = await context.GetEntitiesToListAsync(query);
             return roles;
         }
 
@@ -123,7 +129,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The user {email} does not exist" }
+                    Errors = [$"The user {email} does not exist"]
                 };
             }
 
@@ -132,7 +138,7 @@ namespace FiguraSp.Users.Service.Services
             {
                 return new RoleResponseDto
                 {
-                    Errors = new List<string>() { $"The role {roleName} does not exist" }
+                    Errors = [$"The role {roleName} does not exist"]
                 };
             }
 
@@ -145,13 +151,15 @@ namespace FiguraSp.Users.Service.Services
 
             return new RoleResponseDto
             {
-                Errors = new List<string>() { $"Remove of role failed" }
+                Errors = [$"Remove of role failed"]
             };
         }
 
         public async Task AddUserRoleToUsers()
         {
-            var listOfUsers = await userManager.Users.ToListAsync();
+            IQueryable<IdentityUser> query = context.Users;
+            var listOfUsers = await context.GetEntitiesToListAsync(query);
+            //var listOfUsers = await userManager.Users.ToListAsync();
             foreach (var user in listOfUsers)
             {
                 await userManager.AddToRoleAsync(user, "User");

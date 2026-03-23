@@ -12,7 +12,7 @@ using System.Text;
 
 namespace FiguraSp.Users.Service.Services
 {
-    public class UserService(UserManager<IdentityUser> userManager, UsersDbContext context, TokenValidationParameters tokenValidationParameters) : IUserService
+    public class UserService(UserManager<IdentityUser> userManager, UsersDbContext context) : IUserService
     {
         public async Task<UserResponseDto> GetUserDetails(string email)
         {
@@ -22,7 +22,7 @@ namespace FiguraSp.Users.Service.Services
                 return new UserResponseDto
                 {
                     Success = false,
-                    Errors = new List<string>() { "user does not exist" }
+                    Errors = ["user does not exist"]
                 };
             }
 
@@ -37,7 +37,8 @@ namespace FiguraSp.Users.Service.Services
 
         public async Task<List<IdentityUser>> GetUsers()
         {
-            List<IdentityUser> users = await userManager.Users.ToListAsync();
+            IQueryable<IdentityUser> query = context.Users.AsNoTracking();
+            List<IdentityUser> users = await context.GetEntitiesToListAsync(query);
 
             return users;
         }
@@ -50,7 +51,7 @@ namespace FiguraSp.Users.Service.Services
                 return new UserResponseDto
                 {
                     Success = false,
-                    Errors = new List<string>() { "wrong login credentials" }
+                    Errors = ["wrong login credentials"]
                 };
             }
 
@@ -67,7 +68,7 @@ namespace FiguraSp.Users.Service.Services
                 return new UserResponseDto
                 {
                     Success = false,
-                    Errors = new List<string>() { "user already exist" }
+                    Errors = ["user already exist"]
                 };
             }
 
@@ -89,12 +90,12 @@ namespace FiguraSp.Users.Service.Services
                 return new UserResponseDto
                 {
                     Success = false,
-                    Errors = isCreated.Errors.Select(x => x.Description).ToList()
+                    Errors = [..isCreated.Errors.Select(x => x.Description)]
                 };
             }
         }
 
-        private async Task<List<Claim>> GetAllValidClaims(IdentityUser user)
+        public async Task<List<Claim>> GetAllValidClaims(IdentityUser user)
         {
             var roles = await userManager.GetRolesAsync(user);
             var userClaims = await userManager.GetClaimsAsync(user);
@@ -110,7 +111,7 @@ namespace FiguraSp.Users.Service.Services
             return claims;
         }
 
-        private async Task<UserResponseDto> GenerateJwtToken(IdentityUser user, JwtConfiguration jwtConfiguration)
+        public async Task<UserResponseDto> GenerateJwtToken(IdentityUser user, JwtConfiguration jwtConfiguration)
         {
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.SecretKey));
             var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature);
@@ -155,17 +156,19 @@ namespace FiguraSp.Users.Service.Services
         {
             var random = new Random();
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            return new string(Enumerable.Repeat(chars, length).Select(x => x[random.Next(x.Length)]).ToArray());
+            return new string([..Enumerable.Repeat(chars, length).Select(x => x[random.Next(x.Length)])]);
         }
 
         public async Task<UserResponseDto> RefreshToken(TokenRequestDto tokenRequest, JwtConfiguration jwtConfiguration)
         {
-            RefreshToken? refreshToken = await context.RefreshTokens.Include(r => r.User).FirstOrDefaultAsync(r => r.Token == tokenRequest.RefreshToken);
-            if(refreshToken == null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
+            IQueryable<RefreshToken> query = context.RefreshTokens.Include(r => r.User)
+                .Where(r => r.Token == tokenRequest.RefreshToken).AsNoTracking();
+            RefreshToken? refreshToken = await context.GetFirstOrDefaultAsync(query);
+            if (refreshToken == null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
             {
                 return new UserResponseDto
                 {
-                    Errors = new List<string>() { "expired refresh token" }
+                    Errors = ["expired refresh token"]
                 };             
             }
 
@@ -182,6 +185,8 @@ namespace FiguraSp.Users.Service.Services
         public Task<UserResponseDto> RefreshToken(TokenRequestDto tokenRequest, JwtConfiguration jwtConfiguration);
         public Task<UserResponseDto> RegisterUser(UserRegistrationRequestDto userToRegister, JwtConfiguration jwtConfiguration);
         public Task<UserResponseDto> GetUserDetails(string email);
+        public Task<UserResponseDto> GenerateJwtToken(IdentityUser user, JwtConfiguration jwtConfiguration);
+        public Task<List<Claim>> GetAllValidClaims(IdentityUser user);
     }
 
     
