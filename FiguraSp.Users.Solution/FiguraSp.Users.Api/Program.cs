@@ -1,14 +1,20 @@
 using FiguraSp.Users.Api.Extensions;
+using FiguraSp.Users.Service.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddSharedServices(builder.Configuration)
-    .AddIdentityUser()
-    .AddCustomServices()
-    .AddJwtConfigurationAndValidation(builder.Configuration)
-    .AddCustomAuthorization(builder.Configuration);
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddIdentityUser();
+builder.Services.AddSharedDbConnection(builder.Configuration);
+
+builder.Services.AddCustomServices();
+builder.Services.AddSharedJwtScheme(builder.Configuration);
+builder.Services.AddSharedPolicyRules(builder.Configuration);
+
+//options access for JwtConfiguration in the controller
+builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("Jwt"));
 
 
 //##############################################################MIDDLEWARE###############

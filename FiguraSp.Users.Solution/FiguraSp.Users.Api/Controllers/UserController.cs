@@ -41,7 +41,7 @@ namespace FiguraSp.Users.Api.Controllers
             return BadRequest(new UserResponseDto
             {
                 Success = false,
-                Errors = new List<string>() { "Reqest with inavlid credentials" }
+                Errors = [ "Reqest with inavlid credentials" ]
             });
         }
 
@@ -74,7 +74,7 @@ namespace FiguraSp.Users.Api.Controllers
             return BadRequest(new UserResponseDto
             {
                 Success = false,
-                Errors = new List<string>() { "Reqest with inavlid credentials" }
+                Errors = [ "Reqest with inavlid credentials" ]
             });
         }
 
@@ -90,7 +90,7 @@ namespace FiguraSp.Users.Api.Controllers
                 {
                     return BadRequest(new UserResponseDto
                     {
-                        Errors = new List<string>() { "Invalid token" },
+                        Errors = [ "Invalid token" ],
                         Success = false
                     });
                 }
@@ -101,7 +101,7 @@ namespace FiguraSp.Users.Api.Controllers
             return BadRequest(new UserResponseDto
             {
                 Success = false,
-                Errors = new List<string>() { "Reqest with inavlid credentials" }
+                Errors = [ "Reqest with inavlid credentials" ]
             });
         }
     }
