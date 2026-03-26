@@ -46,5 +46,15 @@ namespace FiguraSp.Users.Api.Extensions
             SharedService.AddSharedPolicyService(services, config);
             return services;
         }
+
+        public static IApplicationBuilder UserSharedGatewayMiddleware(this IApplicationBuilder app)
+        {
+            //register middleware such as:
+            //global exception -> handle external errors
+            //listen to api gateway only -> block all outside calls
+            SharedService.UseSharedGatewary(app);
+
+            return app;
+        }
     }
 }

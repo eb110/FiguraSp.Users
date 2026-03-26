@@ -20,7 +20,7 @@ builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("J
 //##############################################################MIDDLEWARE###############
 
 var app = builder.Build();
-
+app.UserSharedGatewayMiddleware();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
